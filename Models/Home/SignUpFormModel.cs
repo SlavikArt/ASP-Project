@@ -29,6 +29,8 @@ namespace ASP_P15.Models.Home
         [FromForm(Name = "is-agree")]
         public Boolean IsAgree { get; set; } = false;
 
+        [FromForm(Name = "user-birthday")]
+        public String UserBirthday { get; set; } = null!;
     }
 }
 /* Моделі (в ASP) - це класи, за допомогою яких реалізується передача

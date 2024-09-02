@@ -4,6 +4,8 @@ using ASP_P15.Models.Shop;
 using ASP_P15.Services.Upload;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace ASP_P15.Controllers
 {
@@ -17,13 +19,18 @@ namespace ASP_P15.Controllers
         [HttpPost]
         public async Task<object> DoPost(ShopProductFormModel formModel)
         {
+            var validationErrors = _Validate(formModel);
+            if (validationErrors.Any(e => e.Value != null))
+            {
+                HttpContext.Session.SetString("shop-product-errors", JsonSerializer.Serialize(validationErrors));
+                HttpContext.Session.SetString("shop-product-data", JsonSerializer.Serialize(formModel));
+                return new { code = 400, status = "error", errors = validationErrors };
+            }
+
             String uploadedName;
             try
             {
-                uploadedName = _fileUploader.UploadFile(
-                    formModel.ImageFile,
-                    "./Uploads/Shop"
-                );
+                uploadedName = _fileUploader.UploadFile(formModel.ImageFile, "./Uploads/Shop");
                 _dataContext.Products.Add(new()
                 {
                     Id = Guid.NewGuid(),
@@ -44,6 +51,22 @@ namespace ASP_P15.Controllers
             }
 
             return new { code = 200, status = "OK", message = "Created" };
+        }
+
+        private Dictionary<string, string?>? _Validate(ShopProductFormModel model)
+        {
+            Dictionary<String, String?> res = new();
+
+            var nameRegex = new Regex(@"^\w{2,}(\s+\w{2,})*$");
+            res[nameof(model.Name)] = String.IsNullOrEmpty(model.Name) ? "Поле не може бути порожнім" : nameRegex.IsMatch(model.Name) ? null : "Введіть правильне ім'я";
+
+            res[nameof(model.Description)] = String.IsNullOrEmpty(model.Description) ? "Поле не може бути порожнім" : null;
+
+            res[nameof(model.Price)] = model.Price < 0 ? "Ціна не може бути меншою за 0" : null;
+
+            res[nameof(model.Amount)] = model.Amount < 0 ? "Кількість не може бути меншою за 0" : null;
+
+            return res;
         }
     }
 }

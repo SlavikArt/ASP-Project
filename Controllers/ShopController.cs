@@ -3,6 +3,8 @@ using ASP_P15.Data.Entities;
 using ASP_P15.Models.Shop;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 namespace ASP_P15.Controllers
 {
     public class ShopController(DataContext dataContext) : Controller
@@ -13,10 +15,20 @@ namespace ASP_P15.Controllers
         {
             ShopPageModel model = new()
             {
-                ProductGroups = _dataContext
-                    .Groups
-                    .Where(g => g.DeleteDt == null)
+                ProductGroups = _dataContext.Groups.Where(g => g.DeleteDt == null).ToList()
             };
+
+            if (HttpContext.Session.Keys.Contains("shop-product-data"))
+            {
+                var formModel = JsonSerializer.Deserialize<ShopProductFormModel>(HttpContext.Session.GetString("shop-product-data")!)!;
+                model.FormModel = formModel;
+               
+                model.ValidationErrors = JsonSerializer.Deserialize<Dictionary<string, string?>>(HttpContext.Session.GetString("shop-product-errors")!);
+                ViewData["shopProductData"] = $"name: {formModel.Name}, description: {formModel.Description}, price: {formModel.Price}, amount: {formModel.Amount}";
+                HttpContext.Session.Remove("shop-product-data");
+                HttpContext.Session.Remove("shop-product-errors");
+            }
+
             return View(model);
         }
 

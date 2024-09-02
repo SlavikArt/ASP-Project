@@ -27,9 +27,32 @@
             if (j.status == 'OK') {
                 // alert('Додано успішно');
                 window.location.reload();
-            }
-            else {
+            } else {
                 alert(j.message);
+                
+                form.querySelectorAll('.invalid-feedback, .valid-feedback').forEach(el => el.remove());
+                form.querySelectorAll('.is-invalid, .is-valid').forEach(el => el.classList.remove('is-invalid', 'is-valid'));
+
+                if (j.errors) {
+                    for (const [key, value] of Object.entries(j.errors)) {
+                        const input = form.querySelector(`[name="${key}"]`);
+                        if (input) {
+                            if (value) {
+                                input.classList.add('is-invalid');
+                                const feedback = document.createElement('div');
+                                feedback.className = 'invalid-feedback';
+                                feedback.innerText = value;
+                                input.parentNode.appendChild(feedback);
+                            } else {
+                                input.classList.add('is-valid');
+                                const feedback = document.createElement('div');
+                                feedback.className = 'valid-feedback';
+                                feedback.innerText = 'Поле заповнено правильно';
+                                input.parentNode.appendChild(feedback);
+                            }
+                        }
+                    }
+                }
             }
         });
     }
@@ -177,7 +200,7 @@ function authClick() {
     }
     errorDiv.hide();
     console.log(email, password);
-    fetch(`/api/auth?email=${email}&password=${password}`, {
+    fetch(`/api/auth?input=${email}&password=${password}`, {
         method: 'GET'
     }).then(r => r.json()).then(j => {
         console.log(j);

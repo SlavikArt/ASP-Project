@@ -26,45 +26,63 @@ namespace ASP_P15.Controllers
         }
 
         [HttpGet]
-        public object DoGet(String email, String password)
+        public object DoGet(String input, String password)
         {
-            if (String.IsNullOrEmpty(email) || String.IsNullOrEmpty(password))
+            if (String.IsNullOrEmpty(input) || String.IsNullOrEmpty(password))
             {
                 return new
                 {
                     status = "Error",
                     code = 400,
-                    message = "Email and password must not be empty"
+                    message = "Email/Name/Birthday and password must not be empty"
                 };
             }
             // Розшифрувати DK неможливо, тому повторюємо розрахунок DK з сіллю, що
             // зберігається у користувача, та паролем, який передано у параметрі
-            
-            var user = _dataContext
-                .Users
-                .FirstOrDefault(u => 
-                    u.Email == email && 
-                    u.DeleteDt == null);  // додаємо умову, що користувач не видалений
+
+            var emailRegex = new Regex(@"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$");
+            var nameRegex = new Regex(@"^\w{2,}(\s+\w{2,})*$");
+            var birthdayRegex = new Regex(@"^(0[1-9]|[12][0-9]|3[01])[-./](0[1-9]|1[0-2])[-./](\d{4})$");
+
+            var user = emailRegex.IsMatch(input) ? _dataContext.Users.FirstOrDefault(u => u.Email == input) :
+                nameRegex.IsMatch(input) ? _dataContext.Users.FirstOrDefault(u => u.Name == input) :
+                birthdayRegex.IsMatch(input) ? _dataContext.Users.FirstOrDefault(u => u.Birthdate == Convert.ToDateTime(input)) :
+                null;
 
             if (user != null && _kdfService.DerivedKey(password, user.Salt) == user.Dk)
             {
-                // генеруємо токен
-                Token token = new()
+                var activeToken = _dataContext.Tokens.FirstOrDefault(t => t.UserId == user.Id && t.ExpiresAt > DateTime.Now);
+
+                if (activeToken != null)
                 {
-                    Id = Guid.NewGuid(),
-                    UserId = user.Id,
-                    ExpiresAt = DateTime.Now.AddHours(3),
-                };
-                _dataContext.Tokens.Add(token);
-                _dataContext.SaveChanges();
-                // зберігаємо токен у сесії
-                HttpContext.Session.SetString("token", token.Id.ToString());
-                return new
-                {
-                    status = "Ok",
-                    code = 200,
-                    message = token.Id  // передаємо токен клієнту
-                };
+                    HttpContext.Session.SetString("token", activeToken.Id.ToString());
+                    return new
+                    {
+                        status = "Ok",
+                        code = 200,
+                        message = activeToken.Id
+                    };
+                }
+                else 
+                { 
+                    // генеруємо токен
+                    Token token = new()
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = user.Id,
+                        ExpiresAt = DateTime.Now.AddHours(3),
+                    };
+                    _dataContext.Tokens.Add(token);
+                    _dataContext.SaveChanges();
+                    // зберігаємо токен у сесії
+                    HttpContext.Session.SetString("token", token.Id.ToString());
+                    return new
+                    {
+                        status = "Ok",
+                        code = 200,
+                        message = token.Id  // передаємо токен клієнту
+                    };
+                }
             }
             else
             {

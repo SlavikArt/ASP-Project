@@ -1,6 +1,8 @@
 ﻿@using System.Security.Claims
 @{
     bool isAuthenticated = Context.User.Identity?.IsAuthenticated ?? false;
+    String? userName = Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+    String? userEmail = Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
     String? avatar = Context
         .User
         .Claims
@@ -24,6 +26,7 @@
     <link rel="stylesheet" href="~/ASP-P15.styles.css" asp-append-version="true" />
 </head>
 <body>
+    <!-- Header -->
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -70,13 +73,20 @@
             </div>
         </nav>
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
+
+    <!-- Footer -->
     <footer class="border-top footer text-muted">
         <div class="container">
+            @if (isAuthenticated)
+            {
+                <span>Authorized for "@userName" (@userEmail) </span>
+            }
             &copy; 2024 - ASP_P15 - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
@@ -96,9 +106,9 @@
                             <span class="input-group-text" id="auth-email-addon"><i class="bi bi-at"></i></span>
                             <input type="text"
                                    class="form-control"
-                                   placeholder="Ел. пошта"
+                                   placeholder="Ел. пошта / ім'я / дата народження"
                                    name="auth-user-email"
-                                   aria-label="Ел. пошта" aria-describedby="auth-email-addon" />
+                                   aria-label="Ел. пошта / ім'я / дата народження" aria-describedby="auth-email-addon" />
                         </div>
                     </div>
                     <div class="row">
