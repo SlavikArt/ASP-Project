@@ -25,3 +25,7 @@
 ## Token Verification Before Authentication
 
 ![Token Verification](./Screenshots/4.png)
+
+## Authorized For
+
+![Authorized For](./Screenshots/5.png)
