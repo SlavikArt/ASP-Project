@@ -1,5 +1,6 @@
 ﻿using ASP_P15.Data;
 using ASP_P15.Data.Entities;
+using ASP_P15.Services.Hash;
 using ASP_P15.Services.Kdf;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -44,9 +45,9 @@ namespace ASP_P15.Controllers
             var nameRegex = new Regex(@"^\w{2,}(\s+\w{2,})*$");
             var birthdayRegex = new Regex(@"^(0[1-9]|[12][0-9]|3[01])[-./](0[1-9]|1[0-2])[-./](\d{4})$");
 
-            var user = emailRegex.IsMatch(input) ? _dataContext.Users.FirstOrDefault(u => u.Email == input) :
-                nameRegex.IsMatch(input) ? _dataContext.Users.FirstOrDefault(u => u.Name == input) :
-                birthdayRegex.IsMatch(input) ? _dataContext.Users.FirstOrDefault(u => u.Birthdate == Convert.ToDateTime(input)) :
+            var user = emailRegex.IsMatch(input) ? _dataContext.Users.FirstOrDefault(u => u.Email == input && u.DeleteDt == null) :
+                nameRegex.IsMatch(input) ? _dataContext.Users.FirstOrDefault(u => u.Name == input && u.DeleteDt == null) :
+                birthdayRegex.IsMatch(input) ? _dataContext.Users.FirstOrDefault(u => u.Birthdate == Convert.ToDateTime(input) && u.DeleteDt == null) :
                 null;
 
             if (user != null && _kdfService.DerivedKey(password, user.Salt) == user.Dk)
@@ -70,7 +71,7 @@ namespace ASP_P15.Controllers
                     {
                         Id = Guid.NewGuid(),
                         UserId = user.Id,
-                        ExpiresAt = DateTime.Now.AddHours(3),
+                        ExpiresAt = DateTime.Now.AddMinutes(10),
                     };
                     _dataContext.Tokens.Add(token);
                     _dataContext.SaveChanges();
@@ -103,56 +104,65 @@ namespace ASP_P15.Controllers
         }
 
         [HttpPut]
-        public async Task<object> DoPutAsync()
+        public async Task<object> DoPutAsync([FromServices] IKdfService kdfService, [FromServices] IHashService hashService)
         {
-            // Дані, що передаються в тілі запиту доступні через Request.Body
             String body = await new StreamReader(Request.Body).ReadToEndAsync();
-
             _logger.LogWarning(body);
 
-            JsonNode json = JsonSerializer.Deserialize<JsonNode>(body)
-                ?? throw new Exception("JSON in body is invalid");
-
+            JsonNode json = JsonSerializer.Deserialize<JsonNode>(body) ?? throw new Exception("JSON in body is invalid");
             String? email = json["email"]?.GetValue<String>();
             String? name = json["name"]?.GetValue<String>();
             String? birthdate = json["birthdate"]?.GetValue<String>();
+            String? oldPassword = json["oldPassword"]?.GetValue<String>();
+            String? newPassword = json["newPassword"]?.GetValue<String>();
 
-            if (email == null && name == null && birthdate == null)
+            if (email == null && name == null && birthdate == null && oldPassword == null && newPassword == null)
             {
                 return new { code = 400, status = "Error", message = "No data" };
             }
-            if (email != null) 
+
+            if (email != null)
             {
                 var emailRegex = new Regex(@"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$");
-                if ( ! emailRegex.IsMatch(email))
+                if (!emailRegex.IsMatch(email))
                 {
                     return new { code = 422, status = "Error", message = "Email match no pattern" };
                 }
             }
+
             DateTime? birthDateTime = null;
-            if (birthdate != null) 
+            if (birthdate != null)
             {
                 try
                 {
                     birthDateTime = DateTime.Parse(birthdate);
                 }
-                catch 
+                catch
                 {
                     return new { code = 422, status = "Error", message = "Birthdate unparseable" };
                 }
             }
 
-            Guid userId = Guid.Parse(
-                HttpContext
-                .User
-                .Claims
-                .First(c => c.Type == ClaimTypes.Sid)
-                .Value);
-
+            Guid userId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == ClaimTypes.Sid).Value);
             var user = _dataContext.Users.Find(userId);
             if (user == null)
             {
                 return new { code = 403, status = "Error", message = "Forbidden" };
+            }
+
+            if (oldPassword != null && newPassword != null)
+            {
+                // Validate old password
+                var oldDerivedKey = kdfService.DerivedKey(oldPassword, user.Salt);
+                if (oldDerivedKey != user.Dk)
+                {
+                    return new { code = 422, status = "Error", message = "Old password is incorrect" };
+                }
+                // Generate new salt and derived key for new password
+                String newSalt = hashService.Digest(Guid.NewGuid().ToString())[..20];
+                var newDerivedKey = kdfService.DerivedKey(newPassword, newSalt);
+                user.Salt = newSalt;
+                user.Dk = newDerivedKey;
             }
 
             if (email != null)
@@ -163,21 +173,38 @@ namespace ASP_P15.Controllers
             {
                 user.Name = name;
             }
-            if (birthDateTime != null) 
+            if (birthDateTime != null)
             {
                 user.Birthdate = birthDateTime;
             }
 
-            await _dataContext.SaveChangesAsync();
+            _logger.LogInformation($"email: {email}");
+            _logger.LogInformation($"name: {name}");
+            _logger.LogInformation($"birthdate: {birthdate}");
+            _logger.LogInformation($"oldPassword: {oldPassword}");
+            _logger.LogInformation($"newPassword: {newPassword}");
 
+            await _dataContext.SaveChangesAsync();
             return new { code = 200, status = "OK", message = "Updated" };
         }
+
 
         public async Task<object> DoOther()
         {
             switch (Request.Method)
             {
                 case "UNLINK": return await DoUnlink();
+                case "LINK":
+                {
+                    String body = await new StreamReader(Request.Body).ReadToEndAsync();
+                    JsonNode json = JsonSerializer.Deserialize<JsonNode>(body) ?? throw new Exception("JSON in body is invalid");
+
+                    String? email = json["email"]?.GetValue<String>();
+                    String? password = json["password"]?.GetValue<String>();
+                    String? regDate = json["regDate"]?.GetValue<String>();
+
+                    return await DoLink(email, password, regDate);
+                }
                 default: return new
                 {
                     status = "error",
@@ -233,7 +260,53 @@ namespace ASP_P15.Controllers
             {
                 status = "OK",
                 code = 200,
-                message = "Deleted"
+                message = $"Для відновлення введіть дату реєстрації ({user.Registered.ToString().Split(" ")[0]}) та свій пароль"
+            };
+        }
+
+        private async Task<object> DoLink(String email, String password, String regDate)
+        {
+            var users = _dataContext.Users.Where(u => u.Registered.Date.Equals(DateTime.Parse(regDate).Date));
+            User? recoveredUser = null;
+            foreach (var user in users)
+            {
+                if (_kdfService.DerivedKey(password, user.Salt) == user.Dk)
+                {
+                    recoveredUser = user;
+                    break;
+                }
+            }
+
+            if (recoveredUser == null)
+            {
+                return new
+                {
+                    status = "Error",
+                    code = 404,
+                    message = "User not found"
+                };
+            }
+            if (recoveredUser.DeleteDt == null)
+            {
+                return new 
+                { 
+                    status = "Error",
+                    code = 400, 
+                    message = "User is not marked for deletion" 
+                };
+            }
+
+            recoveredUser.Email = email;
+            recoveredUser.Name = "Anonymous";
+            recoveredUser.DeleteDt = null;
+
+            await _dataContext.SaveChangesAsync();
+
+            return new
+            {
+                status = "OK",
+                code = 200,
+                message = "Recovered"
             };
         }
     }

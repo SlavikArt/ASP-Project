@@ -106,7 +106,8 @@ namespace ASP_P15.Controllers
                         Dk = _kdfService.DerivedKey(formModel.UserPassword, salt),
                         Birthdate = DateTime.ParseExact(formModel.UserBirthday, "dd-MM-yyyy", CultureInfo.InvariantCulture),
                         Registered = DateTime.Now,
-                        Avatar = HttpContext.Session.GetString(fileNameKey)
+                        Avatar = HttpContext.Session.GetString(fileNameKey),
+                        Role = "Guest"
                     });
                     _dataContext.SaveChanges();
                 }

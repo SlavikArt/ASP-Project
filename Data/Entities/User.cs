@@ -11,6 +11,8 @@
         public String  Salt     { get; set; } = null!;
         public String  Dk       { get; set; } = null!;  // Derived Key
         public String? Avatar   { get; set; } = null!;
+        //////////////////// ADDING ROLES /////////////////////
+        public String Role { get; set; } = null!;
         //////////////////// DELETE ///////////////////////////
         public DateTime? DeleteDt { get; set; }  // ознака видалення: null - активний, інакше - видалений
     }

@@ -1,7 +1,8 @@
-﻿@model ASP_P15.Models.Shop.ShopPageModel
+﻿@using System.Security.Claims
+@model ASP_P15.Models.Shop.ShopPageModel
 @{
     ViewData["Title"] = "Shop";
-    bool isAuthenticated = Context.User.Identity?.IsAuthenticated ?? false;
+    bool isAdmin = Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value == "Admin";
 
 }
 
@@ -15,7 +16,7 @@
 }
 
 
-@if (isAuthenticated)
+@if (isAdmin)
 {
     <hr />
     <form enctype="multipart/form-data" method="post" id="shop-group-form">

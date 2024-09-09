@@ -12,10 +12,6 @@
 
 ![Saving data in the database](./Screenshots/2.png)
 
-## Saving data in the database
-
-![Saving data in the database](./Screenshots/2.png)
-
 ## Login With Email / Name / Birthdate
 
 ![Empty Login](./Screenshots/3.1.png)
@@ -29,3 +25,17 @@
 ## Authorized For
 
 ![Authorized For](./Screenshots/5.png)
+
+## Profile Edit
+
+![Profile Edit](./Screenshots/6.1.png)
+![Profile Edit Logger](./Screenshots/6.2.png)
+![Profile Edit DB Updated](./Screenshots/6.3.png)
+
+## User Recovery
+
+![User Recovery](./Screenshots/7.png)
+
+## Roles (Admin, Guest)
+
+![Roles Admin, Guest](./Screenshots/8.png)

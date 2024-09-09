@@ -43,13 +43,15 @@ namespace ASP_P15.Middleware.SessionAuth
                             // Уніфікований підхід - Claims:
                             // "перекладаємо" дані з Entities.User до типових Claims
                             System.Security.Claims.Claim[] claims = [
-                                new(ClaimTypes.Email,    user.Email),
-                                new(ClaimTypes.Name,     user.Name ),
-                                new(ClaimTypes.Sid,      user.Id.ToString()),
-                                new(ClaimTypes.UserData, user.Avatar ?? ""),
+                                new(ClaimTypes.Email,       user.Email),
+                                new(ClaimTypes.Name,        user.Name ),
+                                new(ClaimTypes.Sid,         user.Id.ToString()),
+                                new(ClaimTypes.UserData,    user.Avatar ?? ""),
 
                                 new(ClaimTypes.DateOfBirth, user.Birthdate?.ToShortDateString() ?? "- - -"),
-                                new("User::Registered", user.Registered.ToString()),
+                                new("User::Registered",     user.Registered.ToString()),
+
+                                new(ClaimTypes.Role, user.Role)
                             ];
                             // в ASP у HttpContext є властивість User, що є "власником" Claims
                             context.User = new ClaimsPrincipal(     // користувач може пройти
