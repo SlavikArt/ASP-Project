@@ -1,5 +1,6 @@
 ﻿using ASP_P15.Data;
 using ASP_P15.Data.Entities;
+using ASP_P15.Models.Group;
 using ASP_P15.Models.Shop;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,8 @@ namespace ASP_P15.Controllers
         {
             ShopPageModel model = new()
             {
-                ProductGroups = _dataContext.Groups.Where(g => g.DeleteDt == null).ToList()
+                ProductGroups = _dataContext.Groups.Where(g => g.DeleteDt == null).ToList(),
+                GroupFormModel = new GroupFormModel()
             };
 
             if (HttpContext.Session.Keys.Contains("shop-product-data"))

@@ -24,14 +24,41 @@
             <div class="col col-6">
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="name-addon"><i class="bi bi-body-text"></i></span>
-                    <input name="group-name" type="text" class="form-control "
-                           placeholder="Назва групи" aria-label="Назва групи" aria-describedby="name-addon">
+                    @{
+                        String nameClass = Model.ValidationErrors == null ? String.Empty :
+                        Model.ValidationErrors?[nameof(Model.GroupFormModel.Name)] == null ? "is-valid" : "is-invalid";
+                    }
+                    <input name="group-name" type="text" class="form-control @nameClass" placeholder="Назва групи" aria-label="Назва групи" aria-describedby="name-addon">
+                    @if (!String.IsNullOrEmpty(Model.ValidationErrors?[nameof(Model.GroupFormModel.Name)]))
+                    {
+                        <div class="invalid-feedback">
+                            @Model.ValidationErrors?[nameof(Model.GroupFormModel.Name)]
+                        </div>
+                    }
+                    else if (Model.ValidationErrors != null && Model.ValidationErrors[nameof(Model.GroupFormModel.Name)] == null)
+                    {
+                        <div class="valid-feedback">Поле заповнено правильно</div>
+                    }
                 </div>
             </div>
             <div class="col col-6">
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="description-addon"><i class="bi bi-person-vcard"></i></span>
-                    <textarea name="group-description" type="text" class="form-control " placeholder="Опис" aria-label="Опис" aria-describedby="description-addon"></textarea>
+                    @{
+                        String descriptionClass = Model.ValidationErrors == null ? String.Empty :
+                        Model.ValidationErrors?[nameof(Model.GroupFormModel.Description)] == null ? "is-valid" : "is-invalid";
+                    }
+                    <textarea name="group-description" class="form-control @descriptionClass" placeholder="Опис" aria-label="Опис" aria-describedby="description-addon"></textarea>
+                    @if (!String.IsNullOrEmpty(Model.ValidationErrors?[nameof(Model.GroupFormModel.Description)]))
+                    {
+                        <div class="invalid-feedback">
+                            @Model.ValidationErrors?[nameof(Model.GroupFormModel.Description)]
+                        </div>
+                    }
+                    else if (Model.ValidationErrors != null && Model.ValidationErrors[nameof(Model.GroupFormModel.Description)] == null)
+                    {
+                        <div class="valid-feedback">Поле заповнено правильно</div>
+                    }
                 </div>
             </div>
         </div>
@@ -45,11 +72,25 @@
             <div class="col col-6">
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="slug-addon"><i class="bi bi-body-text"></i></span>
-                    <input name="group-slug" type="text" class="form-control "
-                            placeholder="Slug групи" aria-describedby="slug-addon">
+                    @{
+                        String slugClass = Model.ValidationErrors == null ? String.Empty :
+                        Model.ValidationErrors?[nameof(Model.GroupFormModel.Slug)] == null ? "is-valid" : "is-invalid";
+                    }
+                    <input name="group-slug" type="text" class="form-control @slugClass" placeholder="Slug групи" aria-describedby="slug-addon">
+                    @if (!String.IsNullOrEmpty(Model.ValidationErrors?[nameof(Model.GroupFormModel.Slug)]))
+                    {
+                        <div class="invalid-feedback">
+                            @Model.ValidationErrors?[nameof(Model.GroupFormModel.Slug)]
+                        </div>
+                    }
+                    else if (Model.ValidationErrors != null && Model.ValidationErrors[nameof(Model.GroupFormModel.Slug)] == null)
+                    {
+                        <div class="valid-feedback">Поле заповнено правильно</div>
+                    }
                 </div>
             </div>
         </div>
+
         <div class="row">
             <div class="col col-6">
                 <button type="submit" class="btn btn-outline-secondary">Додати</button>
@@ -63,9 +104,9 @@
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="name-addon"><i class="bi bi-body-text"></i></span>
                     @{
-                        String nameClass = Model.ValidationErrors == null ? String.Empty : Model.ValidationErrors?[nameof(Model.FormModel.Name)] == null ? "is-valid" : "is-invalid";
+                        String productNameClass = Model.ValidationErrors == null ? String.Empty : Model.ValidationErrors?[nameof(Model.FormModel.Name)] == null ? "is-valid" : "is-invalid";
                     }
-                    <input name="product-name" type="text" class="form-control @nameClass" placeholder="Назва товару" aria-label="Назва товару" aria-describedby="name-addon">
+                    <input name="product-name" type="text" class="form-control @productNameClass" placeholder="Назва товару" aria-label="Назва товару" aria-describedby="name-addon">
                     @if (!String.IsNullOrEmpty(Model.ValidationErrors?[nameof(Model.FormModel.Name)]))
                     {
                         <div id="validationServerUsernameFeedback" class="invalid-feedback">
@@ -82,9 +123,9 @@
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="description-addon"><i class="bi bi-person-vcard"></i></span>
                     @{
-                        String descriptionClass = Model.ValidationErrors == null ? String.Empty : Model.ValidationErrors?[nameof(Model.FormModel.Description)] == null ? "is-valid" : "is-invalid";
+                        String productDescriptionClass = Model.ValidationErrors == null ? String.Empty : Model.ValidationErrors?[nameof(Model.FormModel.Description)] == null ? "is-valid" : "is-invalid";
                     }
-                    <textarea name="product-description" class="form-control @descriptionClass" placeholder="Опис" aria-label="Опис" aria-describedby="description-addon"></textarea>
+                    <textarea name="product-description" class="form-control @productDescriptionClass" placeholder="Опис" aria-label="Опис" aria-describedby="description-addon"></textarea>
                     @if (!String.IsNullOrEmpty(Model.ValidationErrors?[nameof(Model.FormModel.Description)]))
                     {
                         <div class="invalid-feedback">
@@ -103,9 +144,9 @@
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="price-addon"><i class="bi bi-body-text"></i></span>
                     @{
-                        String priceClass = Model.ValidationErrors == null ? String.Empty : Model.ValidationErrors?[nameof(Model.FormModel.Price)] == null ? "is-valid" : "is-invalid";
+                        String productPriceClass = Model.ValidationErrors == null ? String.Empty : Model.ValidationErrors?[nameof(Model.FormModel.Price)] == null ? "is-valid" : "is-invalid";
                     }
-                    <input name="product-price" type="number" class="form-control @priceClass" placeholder="Ціна товару" aria-label="Ціна товару" aria-describedby="price-addon">
+                    <input name="product-price" type="number" class="form-control @productPriceClass" placeholder="Ціна товару" aria-label="Ціна товару" aria-describedby="price-addon">
                     @if (!String.IsNullOrEmpty(Model.ValidationErrors?[nameof(Model.FormModel.Price)]))
                     {
                         <div class="invalid-feedback">
@@ -122,9 +163,9 @@
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="amount-addon"><i class="bi bi-person-vcard"></i></span>
                     @{
-                        String amountClass = Model.ValidationErrors == null ? String.Empty : Model.ValidationErrors?[nameof(Model.FormModel.Amount)] == null ? "is-valid" : "is-invalid";
+                        String productAmountClass = Model.ValidationErrors == null ? String.Empty : Model.ValidationErrors?[nameof(Model.FormModel.Amount)] == null ? "is-valid" : "is-invalid";
                     }
-                    <input name="product-amount" type="number" class="form-control @amountClass" placeholder="Кіл-ть товару" aria-label="Кіл-ть товару" aria-describedby="amount-addon">
+                    <input name="product-amount" type="number" class="form-control @productAmountClass" placeholder="Кіл-ть товару" aria-label="Кіл-ть товару" aria-describedby="amount-addon">
                     @if (!String.IsNullOrEmpty(Model.ValidationErrors?[nameof(Model.FormModel.Amount)]))
                     {
                         <div class="invalid-feedback">
@@ -143,9 +184,9 @@
                 <div class="input-group mb-3">
                     <label class="input-group-text" for="inputGroupSelect01">Група</label>
                     @{
-                        String groupClass = Model.ValidationErrors == null ? String.Empty : Model.ValidationErrors?[nameof(Model.FormModel.GroupId)] == null ? "is-valid" : "is-invalid";
+                        String productGroupClass = Model.ValidationErrors == null ? String.Empty : Model.ValidationErrors?[nameof(Model.FormModel.GroupId)] == null ? "is-valid" : "is-invalid";
                     }
-                    <select name="group-id" class="form-select @groupClass" id="inputGroupSelect01">
+                    <select name="group-id" class="form-select @productGroupClass" id="inputGroupSelect01">
                         @foreach (var grp in Model.ProductGroups)
                         {
                             <option value="@(grp.Id)">@grp.Name (@grp.Description)</option>
@@ -167,9 +208,9 @@
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="slug-addon"><i class="bi bi-person-vcard"></i></span>
                     @{
-                        String slugClass = Model.ValidationErrors == null ? String.Empty : Model.ValidationErrors?[nameof(Model.FormModel.Slug)] == null ? "is-valid" : "is-invalid";
+                        String productSlugClass = Model.ValidationErrors == null ? String.Empty : Model.ValidationErrors?[nameof(Model.FormModel.Slug)] == null ? "is-valid" : "is-invalid";
                     }
-                    <input name="product-slug" type="text" class="form-control @slugClass" placeholder="Slug товару" aria-label="Slug товару" aria-describedby="slug-addon">
+                    <input name="product-slug" type="text" class="form-control @productSlugClass" placeholder="Slug товару" aria-label="Slug товару" aria-describedby="slug-addon">
                     @if (!String.IsNullOrEmpty(Model.ValidationErrors?[nameof(Model.FormModel.Slug)]))
                     {
                         <div class="invalid-feedback">
