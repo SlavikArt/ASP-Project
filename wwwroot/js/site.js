@@ -102,7 +102,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const closeButton = document.getElementById("close-button")
     if (closeButton) closeButton.addEventListener('click', closeClick)
+
+    const productFeedbackButton = document.getElementById("product-feedback-button")
+    if (productFeedbackButton) productFeedbackButton.addEventListener('click', productFeedbackClick)
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('input[name="price"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            const selectedPrice = parseFloat(this.value);
+            document.querySelectorAll('.product-item').forEach(item => {
+                const productPrice = parseFloat(item.getAttribute('data-price'));
+                if (productPrice <= selectedPrice) {
+                    item.style.display = 'inline-block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    document.getElementById('reset-filters')?.addEventListener('click', function () {
+        document.querySelectorAll('input[name="price"]').forEach(radio => {
+            radio.checked = false;
+        });
+        document.querySelectorAll('.product-item').forEach(item => {
+            item.style.display = 'inline-block';
+        });
+    });
+
+});
+
+function productFeedbackClick(e) {
+    const textarea = document.getElementById("product-feedback")
+    const userId = textarea.getAttribute("data-user-id")
+    const productId = textarea.getAttribute("data-product-id")
+    const timeStamp = textarea.getAttribute("data-timestamp")
+
+    var text = textarea.value.trim()
+    fetch("/api/feedback", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            userId,
+            productId,
+            text,
+            timeStamp
+        })
+    }).then(r => r.json()).then(console.log)
+
+    console.log(userId, productId, text)
+}
 
 function profileDeleteClick(e) {
     if (confirm("Підтверджуєте видалення облікового запису?")) {

@@ -8,6 +8,7 @@ namespace ASP_P15.Data
         public DbSet<Entities.Token> Tokens { get; set; }
         public DbSet<Entities.Product> Products { get; set; }
         public DbSet<Entities.ProductGroup> Groups { get; set; }
+        public DbSet<Entities.Feedback> Feedbacks { get; set; }
 
         public DataContext(DbContextOptions options) : base(options)
         { }
@@ -23,6 +24,7 @@ namespace ASP_P15.Data
                 .WithMany(g => g.Products)
                 .HasForeignKey(p => p.GroupId)
                 .HasPrincipalKey(g => g.Id);
+
             modelBuilder.Entity<Entities.Product>()
                 .HasIndex(p => p.Slug)
                 .IsUnique();
@@ -31,6 +33,13 @@ namespace ASP_P15.Data
                 .HasIndex(g => g.Slug)
                 .IsUnique();
 
+            modelBuilder.Entity<Entities.Feedback>()
+                .HasOne(f => f.Product)
+                .WithMany(p => p.Feedbacks);
+
+            modelBuilder.Entity<Entities.Feedback>()
+                .HasOne(f => f.User)
+                .WithMany();
         }
     }
 }

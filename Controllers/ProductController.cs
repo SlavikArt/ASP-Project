@@ -57,8 +57,7 @@ namespace ASP_P15.Controllers
         {
             Dictionary<String, String?> res = new();
 
-            var nameRegex = new Regex(@"^\w{2,}(\s+\w{2,})*$");
-            res[nameof(model.Name)] = String.IsNullOrEmpty(model.Name) ? "Поле не може бути порожнім" : nameRegex.IsMatch(model.Name) ? null : "Введіть правильне ім'я";
+            res[nameof(model.Name)] = String.IsNullOrEmpty(model.Name) || model.Name.Length < 2 ? "Поле не може бути порожнім і повинно містити хоча б два символи" : null;
 
             res[nameof(model.Description)] = String.IsNullOrEmpty(model.Description) ? "Поле не може бути порожнім" : null;
 

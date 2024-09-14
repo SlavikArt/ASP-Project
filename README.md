@@ -43,3 +43,17 @@
 ## Group And Product Form Validation
 
 ![Group And Product Form Validation](./Screenshots/9.png)
+
+## Price Products Filter
+
+![Price Products Filter](./Screenshots/10.1.png)
+![Price Products Filter](./Screenshots/10.2.png)
+
+## Related Products
+
+![Related Products](./Screenshots/11.png)
+
+## Feedbacks
+
+![Feedbacks](./Screenshots/12.1.png)
+![Feedbacks](./Screenshots/12.2.png)
