@@ -1,0 +1,27 @@
+﻿@using System.Security.Claims
+
+@model ASP_P15.Data.Entities.Product
+@{
+    bool isAuthenticated = Context.User.Identity?.IsAuthenticated ?? false;
+    String? userId = Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+    var isProductInCart = Model.CartProducts != null && Model.CartProducts.Any(cp => cp.ProductId == Model.Id);
+    var cartProduct = Model.CartProducts?.FirstOrDefault(cp => cp.ProductId == Model.Id);
+}
+<div class="product-to-cart" data-product-id="@Model.Id">
+    @if (isProductInCart && cartProduct != null)
+    {
+        <div class="in-the-cart">У кошику: </div>
+        <div class="quantity-controls">
+            <button class="btn-decrement" onclick="decrementClickProduct(event)">-</button>
+            <b class="quantity" data-role="cart-product-cnt">@cartProduct.Count</b>
+            <input type="hidden" data-role="cart-product-id" value="@cartProduct.Id">
+            <button class="btn-increment" onclick="incrementClickProduct(event)">+</button>
+        </div>
+    }
+    else
+    {
+        <button class="btn btn-outline-success btn-to-cart" data-product-id="@Model.Id" data-role="add-to-cart">
+            <i class="bi bi-cart3"></i> До кошику
+        </button>
+    }
+</div>

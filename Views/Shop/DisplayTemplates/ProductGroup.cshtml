@@ -1,15 +1,63 @@
 ﻿@model ASP_P15.Data.Entities.ProductGroup
 
-<div class="product-card">
-    <img src="/Home/Download/Shop_@Model.Image" class="product-img" />
-    <div class="product-text">
+@{
+    var productsAmount = Model.Products.Count();
+    var totalFeedbacks = 0;
+    var sumRatings = 0;
+
+    foreach (var product in Model.Products)
+    {
+        if (product.Feedbacks != null)
+        {
+            var activeFeedbacks = product.Feedbacks.Where(f => f.DeleteDt == null).ToList();
+            var productFeedbacks = activeFeedbacks.Count;
+            totalFeedbacks += productFeedbacks;
+            sumRatings += activeFeedbacks.Sum(f => f.Rate);
+        }
+    }
+
+    var averageRating = totalFeedbacks > 0 ? (double)sumRatings / totalFeedbacks : 0;
+    var fullStars = (int)averageRating;
+    var halfStars = averageRating - fullStars >= 0.5 ? 1 : 0;
+    var emptyStars = 5 - fullStars - halfStars;
+}
+
+<div class="product-group-card">
+    <a asp-action="Group" asp-route-id="@(Model.Slug ?? Model.Id.ToString())">
+        <img src="/Home/Download/Shop_@Model.Image" class="product-group-img" />
+    </a>
+    <div class="product-group-text">
         <h3>@Model.Name</h3>
-        <p class="description">@Model.Description</p>
+        <p class="product-group-description">@Model.Description</p>
+        @if (productsAmount > 0)
+        {
+            <p class="product-group-amount">Всього товарів: @productsAmount</p>
+            <p class="product-group-amount">Всього відгуків: @totalFeedbacks</p>
+            <div class="product-group-rating">
+                Середній рейтинг:
+                @for (int i = 0; i < fullStars; ++i)
+                {
+                    <span class="bi bi-star-fill" style="color: gold;"></span>
+                }
+                @if (halfStars > 0)
+                {
+                    <span class="bi bi-star-half" style="color: gold;"></span>
+                }
+                @for (int i = 0; i < emptyStars; ++i)
+                {
+                    <span class="bi bi-star" style="color: gold;"></span>
+                }
+                <span> (@averageRating.ToString("0.0"))</span>
+            </div>
+        }
+        else
+        {
+            <p class="product-group-amount">Поки що в групі не має товарів</p>
+        }
     </div>
     <a asp-action="Group" asp-route-id="@(Model.Slug ?? Model.Id.ToString())">
-        <div class="product-cart">
+        <div class="product-group-show">
             <button type="submit">Подивитись</button>
         </div>
     </a>
-
 </div>

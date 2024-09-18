@@ -9,6 +9,8 @@ namespace ASP_P15.Data
         public DbSet<Entities.Product> Products { get; set; }
         public DbSet<Entities.ProductGroup> Groups { get; set; }
         public DbSet<Entities.Feedback> Feedbacks { get; set; }
+        public DbSet<Entities.Cart> Carts { get; set; }
+        public DbSet<Entities.CartProduct> CartProducts { get; set; }
 
         public DataContext(DbContextOptions options) : base(options)
         { }
@@ -39,7 +41,21 @@ namespace ASP_P15.Data
 
             modelBuilder.Entity<Entities.Feedback>()
                 .HasOne(f => f.User)
-                .WithMany();
+                .WithMany(u => u.Feedbacks);
+
+            modelBuilder.Entity<Entities.Cart>()
+                .HasMany(c => c.CartProducts)
+                .WithOne(cp => cp.Cart)
+                .HasForeignKey(cp => cp.CartId);
+
+            modelBuilder.Entity<Entities.CartProduct>()
+                .HasOne(cp => cp.Product)
+                .WithMany(p => p.CartProducts)
+                .HasForeignKey(cp => cp.ProductId);
+
+            modelBuilder.Entity<Entities.User>()
+                .HasMany(u => u.Carts)
+                .WithOne();
         }
     }
 }

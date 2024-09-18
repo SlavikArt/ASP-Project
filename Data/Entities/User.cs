@@ -13,6 +13,10 @@
         public String? Avatar   { get; set; } = null!;
         //////////////////// ADDING ROLES /////////////////////
         public String Role { get; set; } = null!;
+
+        public IEnumerable<Feedback> Feedbacks { get; set; }
+
+        public IEnumerable<Cart> Carts { get; set; }
         //////////////////// DELETE ///////////////////////////
         public DateTime? DeleteDt { get; set; }  // ознака видалення: null - активний, інакше - видалений
     }

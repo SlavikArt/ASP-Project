@@ -1,20 +1,53 @@
-﻿@model ASP_P15.Data.Entities.Product
+﻿@using System.Security.Claims
+@model ASP_P15.Data.Entities.Product
+
+@{
+    bool isAuthenticated = Context.User.Identity?.IsAuthenticated ?? false;
+    String? userId = Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+
+    var activeFeedbacks = Model.Feedbacks.Where(f => f.DeleteDt == null).ToList();
+    int feedbacksAmount = activeFeedbacks.Count;
+
+    double sum = 0;
+    double amount = 0;
+    foreach (var feedback in activeFeedbacks)
+    {
+        sum += feedback.Rate;
+        amount++;
+    }
+
+    var averageRating = amount > 0 ? sum / amount : 0;
+    var fullStars = (int)averageRating;
+    var halfStars = averageRating - fullStars >= 0.5 ? 1 : 0;
+    var emptyStars = 5 - fullStars - halfStars;
+}
 
 <div class="product-card">
-    <a asp-action="Product" asp-route-id="@(Model.Slug ?? Model.Id.ToString())">
+    <a asp-action="Product" asp-route-id="@(Model.Slug ?? Model.Id.ToString())" style="text-decoration:none;">
         <div class="product-img-container">
             <img src="/Home/Download/Shop_@(Model.Image)" alt="Picture" />
         </div>
         <div class="product-info-container">
-            <h2>
-                @Model.Name
-            </h2>
-            <p>
-                @Model.Description
-            </p>
-            <h3>
-                ₴@Model.Price
-            </h3>
+            <h2>@Model.Name</h2>
+            <p>@Model.Description</p>
+            <h5>
+                @for (int i = 0; i < fullStars; ++i)
+                {
+                    <span class="bi bi-star-fill" style="color: gold;"></span>
+                }
+                @if (halfStars > 0)
+                {
+                    <span class="bi bi-star-half" style="color: gold;"></span>
+                }
+                @for (int i = 0; i < emptyStars; ++i)
+                {
+                    <span class="bi bi-star" style="color: gold;"></span>
+                }
+            </h5>
+            <h3>₴ @Model.Price</h3>
+            <h6><i>кількість коментарів: @feedbacksAmount</i></h6>
         </div>
     </a>
+    <input type="hidden" data-role="user-id" value="@userId">
+    @await Html.PartialAsync("_AddToCartButton", Model)
 </div>

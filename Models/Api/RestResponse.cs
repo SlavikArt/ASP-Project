@@ -9,6 +9,7 @@
     public class MetaData
     {
         public string Service { get; set; }
+        public string CartProductId { get; set; }
         public long Timestamp { get; set; } = DateTime.Now.Ticks;
         public int? Count { get; set; }
     }

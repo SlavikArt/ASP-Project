@@ -9,11 +9,13 @@
 <div class="text-center">
     <h1 class="display-4">Крамниця</h1>
 </div>
+<div class="product-group-container">
+    @foreach (var grp in Model.ProductGroups)
+    {
+        @Html.DisplayFor(m => grp)
+    }
+</div>
 
-@foreach (var grp in Model.ProductGroups)
-{
-    @Html.DisplayFor(m => grp)
-}
 
 
 @if (isAdmin)

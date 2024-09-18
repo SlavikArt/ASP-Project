@@ -4,6 +4,7 @@ using ASP_P15.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ASP_P15.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240915100457_CartAndFeedbacks")]
+    partial class CartAndFeedbacks
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -260,7 +263,7 @@ namespace ASP_P15.Migrations
                         .IsRequired();
 
                     b.HasOne("ASP_P15.Data.Entities.Product", "Product")
-                        .WithMany("CartProducts")
+                        .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -307,8 +310,6 @@ namespace ASP_P15.Migrations
 
             modelBuilder.Entity("ASP_P15.Data.Entities.Product", b =>
                 {
-                    b.Navigation("CartProducts");
-
                     b.Navigation("Feedbacks");
                 });
 

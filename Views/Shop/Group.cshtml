@@ -27,11 +27,13 @@
             </div>
         </div>
 
-        @foreach (var product in @Model.ProductGroup.Products)
-        {
-            <div class="product-item" data-price="@product.Price">
-                @Html.DisplayFor(m => product)
-            </div>
-        }
+        <div class="groups-products-container">
+            @foreach (var product in @Model.ProductGroup.Products)
+            {
+                <div class="product-item" data-price="@product.Price">
+                    @Html.DisplayFor(m => product)
+                </div>
+            }
+        </div>
     </div>
 </div>

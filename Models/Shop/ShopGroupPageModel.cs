@@ -6,5 +6,6 @@ namespace ASP_P15.Models.Shop
     {
         public ProductGroup ProductGroup { get; set; } = null!;
         public IEnumerable<ProductGroup> Groups { get; set; } = null!;
+        public IEnumerable<CartProduct> CartProducts { get; set; } = new List<CartProduct>();
     }
 }

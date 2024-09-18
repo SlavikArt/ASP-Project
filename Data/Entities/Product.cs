@@ -1,4 +1,6 @@
-﻿namespace ASP_P15.Data.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace ASP_P15.Data.Entities
 {
     public class Product
     {
@@ -13,6 +15,8 @@
         public String?   Slug        { get; set; }
         
         public ProductGroup Group { get; set; }
-        public IEnumerable<Feedback> Feedbacks { get; set; }
+        public IEnumerable<Feedback> Feedbacks { get; set; } = null!;
+        [JsonIgnore]
+        public IEnumerable<CartProduct> CartProducts { get; set; } = new List<CartProduct>();
     }
 }

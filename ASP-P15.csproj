@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <Content Remove="Views\Home\Profile1.cshtml" />
+    <Content Remove="wwwroot\css\product.css" />
   </ItemGroup>
 
   <ItemGroup>
