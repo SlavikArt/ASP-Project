@@ -12,7 +12,23 @@
 
     <div id="cart-container" data-user-id="@userId"></div>
 
-    @* <a asp-action="Index" class="btn btn-info">До магазину</a> *@
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Підтвердження покупки</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Ви підтверджуєте покупку на суму <span id="modal-total"></span> грн?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                    <button type="button" class="btn btn-success" id="confirmPurchase">Придбати</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="~/js/cart.js" asp-append-version="true"></script>
 }

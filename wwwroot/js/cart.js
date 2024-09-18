@@ -11,18 +11,16 @@ function loadCart() {
         .then(r => r.json())
         .then(j => {
             console.log(j);
-            let html = `<div data-cart-id="${j.data.id}"><div class="row"><div class="col col-10">`;
+            let html = `<div class="row"><div class="col col-10">`;
             let totalCnt = 0;
             if (j.data == null || j.data.cartProducts == null || j.data.cartProducts.length == 0) {
                 html = "Кошик порожній";
             } else {
                 let total = 0;
-                
-                /*html = '<div class="row"><div class="col col-10">';*/
                 for (let cartProduct of j.data.cartProducts) {
-                    html += `<div class="row my-2 cart-product-item" data-cp-id="${cartProduct.id}">
+                    html += `<div data-cart-id="${j.data.id}" class="row my-2 cart-product-item" data-cp-id="${cartProduct.id}">
             <div class="col col-2">
-                <img src="/Home/Download/Shop_${cartProduct.product.image}" alt="Picture" class="img-fluid rounded"/>
+                <a href="/Shop/Product/${cartProduct.product.id}"><img src="/Home/Download/Shop_${cartProduct.product.image}" alt="Picture" class="img-fluid rounded"/></a>
             </div>
             <div class="col col-8 cart-product-info">
                 <h2 class="font-weight-bold">${cartProduct.product.name}</h2>
@@ -54,18 +52,37 @@ function loadCart() {
                 ${totalCnt > 0 ? '<button onClick="buyClick()" class="btn btn-success">Придбати товари</button>' : ''}
             </div>`;
 
-            html += '</div></div></div>'
+            html += '</div></div>'
             container.innerHTML = html;
         });
 }
 
 function buyClick() {
-    const block = document.querySelector("[data-cart-id]");
-    const cartId = block.getAttribute("data-cart-id");
     const total = document.querySelector('[data-role="cart-total"]').innerText;
-    if (confirm("Підтверджуєте покупку на суму " + total)) {
-        console.log(cartId)
-    }
+    document.getElementById('modal-total').innerText = total;
+    const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    confirmModal.show();
+
+    document.getElementById('confirmPurchase').onclick = function () {
+        const block = document.querySelector("[data-cart-id]");
+        const cartId = block.getAttribute("data-cart-id");
+
+        console.log(cartId);
+
+        fetch("/api/cart?cartId=" + cartId, {
+            method: 'DELETE'
+        }).then(r => r.json()).then(j => {
+            console.log(j);
+            if (j.data == 'Deleted') {
+                loadCart();
+            }
+            else {
+                alert('Error!');
+            }
+        });
+
+        confirmModal.hide();
+    };
 }
 
 function updateTotal() {

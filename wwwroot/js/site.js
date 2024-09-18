@@ -165,6 +165,12 @@ function showToast(message, color) {
     }).showToast();
 }
 
+
+function authModalCall() {
+    const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+    authModal.show();
+}
+
 function addToCart(event) {
     const parentBlock = event.target.closest('.product-to-cart');
     if (!parentBlock) {
@@ -183,8 +189,7 @@ function addToCart(event) {
 
     if (!userId) {
         alert("Треба увійти в систему");
-        const authModal = new bootstrap.Modal(document.getElementById('authModal'));
-        authModal.show();
+        authModalCall();
         return
     }
 
@@ -273,8 +278,6 @@ function decrementClickProduct(event) {
 function incrementClickProduct(event) {
     updateCartProduct(event, 1);
 }
-
-
 
 
 function feedbackDeleteClick(e) {

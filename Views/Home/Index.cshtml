@@ -1,21 +1,31 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "My ASP.NET Shop";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Вивчаємо ASP</h1>    
+    <h1 class="display-4">My ASP.NET Shop</h1>
+    <p>Ласкаво просимо до нашої крамниці!</p>
 </div>
-
-<h3><a href="/Home/Intro">Вступ. Перший проєкт.</a></h3>
-<h3><a href="/Home/Razor">Синтаксис Razor.</a></h3>
-<h3><a asp-action="Ioc">Інверсія управління.</a></h3>
-<h3><a asp-action="Shop">Крамниця.</a></h3>
 
 @if (Context.User.Identity?.IsAuthenticated ?? false)
 {
-    <b>Ви авторизовані</b>
+    <div class="auth-status">
+        <i>
+            <span class="checkmark">✔</span> Ви авторизовані
+        </i>
+    </div>
 }
 else
 {
-    <i>Немає авторизації</i>
+    <div class="auth-status">
+        <i>
+            <span class="crossmark">✘</span> Немає авторизації - <button onclick="authModalCall()">Авторизуватися</button>
+        </i>
+    </div>
 }
+
+<div class="d-flex justify-content-center align-items-center" style="height: 40vh;">
+    <a asp-controller="Shop" asp-action="Index" class="btn btn-shop btn-animated">
+        <i class="bi bi-bag-plus"></i> Перейти до крамниці
+    </a>
+</div>
